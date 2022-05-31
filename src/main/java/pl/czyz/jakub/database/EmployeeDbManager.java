@@ -135,6 +135,78 @@ public class EmployeeDbManager {
         }
     }
 
+    public static List<Pracownik> getEmployeeOfBrigade(Integer brigadeId) {
+        List<Pracownik> result = new ArrayList<>();
+
+        try {
+            if (!DbManager.isConnectionAvailable()) {
+                throw new Exception();
+            }
+
+            String query = "SELECT pracownicy.* " +
+                    "FROM pracownicy " +
+                    "JOIN brygady_pracownicy ON brygady_pracownicy.pracownikId = pracownicy.id " +
+                    "WHERE brygady_pracownicy.brygadaId = ?";
+
+            Connection connection = DbManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, brigadeId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String imie = rs.getString("imie");
+                String nazwisko = rs.getString("nazwisko");
+
+                result.add(new Pracownik(id, imie, nazwisko, null, null));
+            }
+
+            rs.close();
+            ps.close();
+
+            return result;
+        } catch (Exception ex) {
+            return new ArrayList<>();
+        }
+    }
+
+    public static List<Pracownik> getEmployeeForBrigade() {
+        List<Pracownik> result = new ArrayList<>();
+
+        try {
+            if (!DbManager.isConnectionAvailable()) {
+                throw new Exception();
+            }
+
+            String query = "SELECT pracownicy.*, brygadzisci.id as 'brigadeManId' " +
+                    "FROM pracownicy " +
+                    "LEFT JOIN uzytkownicy ON uzytkownicy.pracownikId = pracownicy.id " +
+                    "LEFT JOIN brygadzisci ON brygadzisci.uzytkownikId = uzytkownicy.id " +
+                    "WHERE brigadeManId IS NULL";
+
+            Connection connection = DbManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String imie = rs.getString("imie");
+                String nazwisko = rs.getString("nazwisko");
+
+                result.add(new Pracownik(id, imie, nazwisko, null, null));
+            }
+
+            rs.close();
+            ps.close();
+
+            return result;
+        } catch (Exception ex) {
+            return new ArrayList<>();
+        }
+    }
+
     public static boolean removeEmployee(List<Integer> employee) {
         try {
             if (!DbManager.isConnectionAvailable()) {

@@ -1,10 +1,14 @@
 package pl.czyz.jakub;
 
+import javafx.scene.layout.Background;
 import pl.czyz.jakub.database.*;
 import pl.czyz.jakub.models.*;
 import pl.czyz.jakub.views.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -34,6 +38,9 @@ public class App {
     private final EmployeeController employeeController;
     private final UsersController usersController;
     private final WorkController workController;
+    private final BrigadeManController brigadeManController;
+    private final BrigadeController brigadeController;
+    private final OrderController orderController;
 
     private DataView currentDataView;
 
@@ -42,6 +49,9 @@ public class App {
         employeeController = new EmployeeController();
         usersController = new UsersController();
         workController = new WorkController();
+        brigadeManController = new BrigadeManController();
+        brigadeController = new BrigadeController();
+        orderController = new OrderController();
 
         currentDataView = DataView.DEPARTMENT;
 
@@ -54,6 +64,7 @@ public class App {
         frame.setContentPane(instance.panelMain);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
         frame.addWindowListener(new WindowAdapter() {
@@ -63,6 +74,9 @@ public class App {
         });
 
         instance.welcomeLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        Border border = instance.welcomeLabel.getBorder();
+        Border margin = new EmptyBorder(10,10,10,10);
+        instance.welcomeLabel.setBorder(new CompoundBorder(border, margin));
 
         instance.login();
     }
@@ -95,6 +109,14 @@ public class App {
     private void loadData() {
         DefaultTableModel model = null;
 
+        setButtonBackgroundColor(departmentButton, DataView.DEPARTMENT);
+        setButtonBackgroundColor(employeeButton, DataView.EMPLOYEE);
+        setButtonBackgroundColor(userButton, DataView.USERS);
+        setButtonBackgroundColor(brigadeManButton, DataView.BRIGADE_MAN);
+        setButtonBackgroundColor(brigadeButton, DataView.BRIGADE);
+        setButtonBackgroundColor(orderButton, DataView.ORDER);
+        setButtonBackgroundColor(worksButton, DataView.WORK);
+
         handleAdditionalActionButton();
 
         switch (currentDataView) {
@@ -111,10 +133,16 @@ public class App {
                 model = Uzytkownik.getDerivedTableModel(users);
                 break;
             case BRIGADE_MAN:
+                List<Brygadzista> brigadeMan = BrigadeManDbManager.getBrigadeMan();
+                model = Brygadzista.getBrigadeManTableModel(brigadeMan);
                 break;
             case BRIGADE:
+                List<Brygada> brigades = BrigadeDbManager.getBrigades(null);
+                model = Brygada.getBrigadeTableModel(brigades);
                 break;
             case ORDER:
+                List<Zlecenie> orders = OrderDbManager.getOrders();
+                model = Zlecenie.getTableModel(orders);
                 break;
             case WORK:
                 List<Praca> works = WorkDbDataManager.getWorks();
@@ -131,9 +159,17 @@ public class App {
                 additionalActionButton.setVisible(true);
                 additionalActionButton.setText("Pracownicy działu");
                 break;
+            case BRIGADE_MAN:
+                additionalActionButton.setVisible(true);
+                additionalActionButton.setText("Przypisane brygady");
+                break;
+            case BRIGADE:
+                additionalActionButton.setVisible(true);
+                additionalActionButton.setText("Przypisani pracownicy");
+                break;
             case ORDER:
                 additionalActionButton.setVisible(true);
-                additionalActionButton.setText("Powiązana praca");
+                additionalActionButton.setText("Szczegóły");
                 break;
             default:
                 additionalActionButton.setVisible(false);
@@ -147,6 +183,13 @@ public class App {
                 departmentController.getEmployeesForDepartment(frame, dataTable);
                 break;
             case ORDER:
+                orderController.getWorksForOrder(frame, dataTable);
+                break;
+            case BRIGADE_MAN:
+                brigadeManController.getAssignedBrigades(frame, dataTable);
+                break;
+            case BRIGADE:
+                brigadeController.getAssignedEmployees(frame, dataTable);
                 break;
             default:
                 break;
@@ -167,13 +210,16 @@ public class App {
                 result = usersController.addUser(frame);
                 break;
             case BRIGADE_MAN:
+                result = brigadeManController.addBrigadeMan();
                 break;
             case BRIGADE:
+                result = brigadeController.addBrigade(frame);
                 break;
             case ORDER:
+                result = orderController.addOrder(frame);
                 break;
             case WORK:
-                result = workController.addUser(frame);
+                result = workController.addWork();
                 break;
         }
 
@@ -196,12 +242,16 @@ public class App {
                 result = usersController.editUser(frame, dataTable);
                 break;
             case BRIGADE_MAN:
+                result = brigadeManController.updateBrigadeMan(frame, dataTable);
                 break;
             case BRIGADE:
+                result = brigadeController.editBrigade(frame, dataTable);
                 break;
             case ORDER:
+                result = orderController.editOrder(frame, dataTable);
                 break;
             case WORK:
+                result = workController.editWork(frame, dataTable);
                 break;
         }
 
@@ -224,18 +274,27 @@ public class App {
                 result = usersController.removeUsers(dataTable);
                 break;
             case BRIGADE_MAN:
+                result = brigadeManController.removeBrigadeMan(dataTable);
                 break;
             case BRIGADE:
+                result = brigadeController.removeBrigades(dataTable);
                 break;
             case ORDER:
+                result = orderController.removeOrder(dataTable);
                 break;
             case WORK:
+                result = workController.removeWork(dataTable);
                 break;
         }
 
         if (result) {
             loadData();
         }
+    }
+
+    private void setButtonBackgroundColor(JButton button, DataView assignedDataView){
+        Color color = currentDataView == assignedDataView ? Color.CYAN : Color.LIGHT_GRAY;
+        button.setBackground(color);
     }
 
     private void initializeButtons() {

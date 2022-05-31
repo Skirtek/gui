@@ -10,7 +10,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 public class UsersController {
     public boolean addUser(JFrame frame) {
@@ -73,8 +75,7 @@ public class UsersController {
 
         int initEmployeeIndex = 0;
 
-        // todo i edycja też nie działa
-/*        if (initValue != null) {
+        if (initValue != null) {
             Integer id = initValue.getId();
 
             OptionalInt indexOpt = IntStream.range(0, employees.size())
@@ -82,7 +83,7 @@ public class UsersController {
                     .findFirst();
 
             initEmployeeIndex = indexOpt.isPresent() ? indexOpt.getAsInt() : 0;
-        }*/
+        }
 
         JComboBox<Pracownik> employeesDropdown = new JComboBox<>();
         employeesDropdown.setModel(new DefaultComboBoxModel<>(employees.toArray(new Pracownik[0])));

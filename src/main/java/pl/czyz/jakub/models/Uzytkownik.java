@@ -18,8 +18,8 @@ public class Uzytkownik extends Pracownik {
         setInicial();
     }
 
-    public Uzytkownik(Integer id, String login, String haslo) {
-        super();
+    public Uzytkownik(Integer id, Pracownik employee, String login, String haslo) {
+        super(employee.getId(), employee.getImie(), employee.getNazwisko(), employee.getDataUrodzenia(), employee.getDzialPracownikow());
 
         this.id = id;
         this.login = login;
@@ -31,6 +31,11 @@ public class Uzytkownik extends Pracownik {
 
         this.login = login;
         this.haslo = haslo;
+        setInicial();
+    }
+
+    public void setUserId(Integer userId) {
+        this.id = userId;
     }
 
     public Integer getUserId() {

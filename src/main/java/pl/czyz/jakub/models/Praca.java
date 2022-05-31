@@ -82,4 +82,9 @@ public class Praca {
 
         return rows;
     }
+
+    @Override
+    public String toString() {
+        return ((Integer) numerPracy).toString();
+    }
 }

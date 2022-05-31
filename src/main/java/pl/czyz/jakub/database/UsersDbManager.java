@@ -1,5 +1,6 @@
 package pl.czyz.jakub.database;
 
+import pl.czyz.jakub.models.Pracownik;
 import pl.czyz.jakub.models.Uzytkownik;
 
 import java.sql.Connection;
@@ -78,7 +79,9 @@ public class UsersDbManager {
                 throw new Exception();
             }
 
-            String query = "SELECT * FROM uzytkownicy";
+            String query = "SELECT pracownicy.id as 'pracownikId', pracownicy.imie, pracownicy.nazwisko, uzytkownicy.* " +
+                    "FROM uzytkownicy " +
+                    "JOIN pracownicy on pracownicy.id = uzytkownicy.pracownikId";
 
             Connection connection = DbManager.getConnection();
             PreparedStatement ps = connection.prepareStatement(query);
@@ -90,7 +93,13 @@ public class UsersDbManager {
                 String login = rs.getString("login");
                 String haslo = rs.getString("haslo");
 
-                result.add(new Uzytkownik(id, login, haslo));
+                Pracownik relatedEmployee = new Pracownik(rs.getInt("pracownikId"),
+                        rs.getString("imie"),
+                        rs.getString("nazwisko"),
+                        null,
+                        null);
+
+                result.add(new Uzytkownik(id, relatedEmployee, login, haslo));
             }
 
             rs.close();

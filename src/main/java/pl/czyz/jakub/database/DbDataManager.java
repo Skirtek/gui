@@ -11,6 +11,9 @@ public class DbDataManager {
             EmployeeDbManager.createEmployeeTable();
             UsersDbManager.createUsersTable();
             WorkDbDataManager.createWorkTable();
+            BrigadeManDbManager.createBrigadeManTable();
+            BrigadeDbManager.createBrigadeTable();
+            OrderDbManager.createOrdersTable();
 
             return true;
         } catch (Exception e) {
