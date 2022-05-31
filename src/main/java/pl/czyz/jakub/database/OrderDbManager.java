@@ -124,6 +124,34 @@ public class OrderDbManager {
         }
     }
 
+    public static boolean closeOrder(Integer orderId) {
+        try {
+            if (!DbManager.isConnectionAvailable()) {
+                throw new Exception();
+            }
+
+            String query = "UPDATE zlecenia SET stanZlecenia = ?, dataRealizacji = ?, dataZakonczenia = ? WHERE id = ?";
+
+            Connection connection = DbManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, StanZlecenia.ZAKONCZENIE.ordinal());
+            ps.setString(2, dateFormatter.format(LocalDateTime.now()));
+            ps.setString(3, dateFormatter.format(LocalDateTime.now()));
+            ps.setInt(4, orderId);
+
+            int rows = ps.executeUpdate();
+
+            closeOrderWorks(connection, orderId);
+
+            ps.close();
+
+            return rows == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
     public static List<Zlecenie> getOrders() {
         List<Zlecenie> result = new ArrayList<>();
 
@@ -220,6 +248,30 @@ public class OrderDbManager {
         String query = "DELETE FROM praca_zlecenie WHERE zlecenieId = ?;";
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setInt(1, orderId);
+
+        ps.executeUpdate();
+    }
+
+    private static void closeOrderWorks(Connection connection, Integer orderId) throws SQLException {
+        String query = "SELECT numerPracy FROM praca_zlecenie WHERE zlecenieId = ?";
+        PreparedStatement ps = connection.prepareStatement(query);
+        ps.setInt(1, orderId);
+
+        List<Integer> worksIds = new ArrayList<>();
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            worksIds.add(rs.getInt("numerPracy"));
+        }
+
+        query = DbDataManager.in("UPDATE praca SET czyZrealizowane = 1 WHERE numerPracy IN (?)", worksIds.size());
+
+        ps = connection.prepareStatement(query);
+
+        for (int i = 1; i <= worksIds.size(); i++) {
+            ps.setInt(i, worksIds.get(i - 1));
+        }
 
         ps.executeUpdate();
     }

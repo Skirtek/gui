@@ -75,7 +75,7 @@ public class App {
 
         instance.welcomeLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         Border border = instance.welcomeLabel.getBorder();
-        Border margin = new EmptyBorder(10,10,10,10);
+        Border margin = new EmptyBorder(10, 10, 10, 10);
         instance.welcomeLabel.setBorder(new CompoundBorder(border, margin));
 
         instance.login();
@@ -183,7 +183,11 @@ public class App {
                 departmentController.getEmployeesForDepartment(frame, dataTable);
                 break;
             case ORDER:
-                orderController.getWorksForOrder(frame, dataTable);
+                boolean result = orderController.getWorksForOrder(frame, dataTable);
+
+                if (result) {
+                    loadData();
+                }
                 break;
             case BRIGADE_MAN:
                 brigadeManController.getAssignedBrigades(frame, dataTable);
@@ -292,7 +296,7 @@ public class App {
         }
     }
 
-    private void setButtonBackgroundColor(JButton button, DataView assignedDataView){
+    private void setButtonBackgroundColor(JButton button, DataView assignedDataView) {
         Color color = currentDataView == assignedDataView ? Color.CYAN : Color.LIGHT_GRAY;
         button.setBackground(color);
     }

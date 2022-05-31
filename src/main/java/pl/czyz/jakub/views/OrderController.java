@@ -46,12 +46,12 @@ public class OrderController {
         return OrderDbManager.editOrder(order);
     }
 
-    public void getWorksForOrder(JFrame frame, JTable dataTable) {
+    public boolean getWorksForOrder(JFrame frame, JTable dataTable) {
         int index = dataTable.getSelectedRow();
 
         if (index < 0) {
             JOptionPane.showMessageDialog(frame, "Należy zaznaczyć zlecenie!", "Błąd", JOptionPane.WARNING_MESSAGE);
-            return;
+            return false;
         }
 
         Integer id = (Integer) dataTable.getModel().getValueAt(index, 1);
@@ -70,7 +70,31 @@ public class OrderController {
             message = new JList<>(options);
         }
 
-        JOptionPane.showMessageDialog(frame, message, "Szczegóły", JOptionPane.INFORMATION_MESSAGE);
+        AtomicReference<Boolean> result = new AtomicReference<>(false);
+
+        Object[] fields = {"Prace powiązane:", message};
+
+        JButton end = new JButton("Zakończ zlecenie");
+        JButton close = new JButton("Zamknij okno");
+
+        close.addActionListener(e -> closeForm(close));
+
+        end.addActionListener(e -> {
+            result.set(OrderDbManager.closeOrder(id));
+            closeForm(end);
+        });
+
+        JOptionPane.showOptionDialog(
+                null,
+                fields,
+                "Szczegóły zlecenia",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                new JButton[]{end, close},
+                null);
+
+        return result.get();
     }
 
     public boolean removeOrder(JTable dataTable) {
