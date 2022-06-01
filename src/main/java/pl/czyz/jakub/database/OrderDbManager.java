@@ -160,7 +160,7 @@ public class OrderDbManager {
                 throw new Exception();
             }
 
-            String query = "SELECT brygady.nazwa, zlecenia.* " +
+            String query = "SELECT brygady.id as 'brygadaId', brygady.nazwa, zlecenia.* " +
                     "FROM zlecenia " +
                     "JOIN brygady ON brygady.id = zlecenia.brygadaId " +
                     (onlyUnfinished ? "WHERE zlecenia.stanZlecenia <> 3" : "");
@@ -172,6 +172,7 @@ public class OrderDbManager {
 
             while (rs.next()) {
                 Integer id = rs.getInt("id");
+                int brygadaId = rs.getInt("brygadaId");
                 String brigadeName = rs.getString("nazwa");
                 StanZlecenia state = StanZlecenia.values()[rs.getInt("stanZlecenia")];
                 LocalDateTime creationDate = getLocalDateTime(rs.getString("dataUtworzenia"));
@@ -179,7 +180,7 @@ public class OrderDbManager {
                 LocalDateTime endDate = getLocalDateTime(rs.getString("dataZakonczenia"));
 
                 Zlecenie order = new Zlecenie(id,
-                        new Brygada(brigadeName, null),
+                        new Brygada(brygadaId, brigadeName, null),
                         state, creationDate, realisationDate, endDate);
 
                 List<Praca> works = getWorks(connection, order.getId());
