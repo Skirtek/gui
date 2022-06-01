@@ -35,7 +35,7 @@ public class OrderController {
             return false;
         }
 
-        List<Zlecenie> orders = OrderDbManager.getOrders();
+        List<Zlecenie> orders = OrderDbManager.getOrders(false);
 
         Zlecenie order = showCreateOrUpdateDialog(frame, orders.get(index));
 

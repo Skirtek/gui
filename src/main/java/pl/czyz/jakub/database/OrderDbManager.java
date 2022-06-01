@@ -152,7 +152,7 @@ public class OrderDbManager {
         }
     }
 
-    public static List<Zlecenie> getOrders() {
+    public static List<Zlecenie> getOrders(boolean onlyUnfinished) {
         List<Zlecenie> result = new ArrayList<>();
 
         try {
@@ -162,7 +162,8 @@ public class OrderDbManager {
 
             String query = "SELECT brygady.nazwa, zlecenia.* " +
                     "FROM zlecenia " +
-                    "JOIN brygady ON brygady.id = zlecenia.brygadaId ";
+                    "JOIN brygady ON brygady.id = zlecenia.brygadaId " +
+                    (onlyUnfinished ? "WHERE zlecenia.stanZlecenia <> 3" : "");
 
             Connection connection = DbManager.getConnection();
             PreparedStatement ps = connection.prepareStatement(query);

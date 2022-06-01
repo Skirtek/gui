@@ -35,6 +35,7 @@ public class App {
     private JLabel welcomeLabel;
     private JScrollPane scrollPanel;
     private JButton changePasswordButton;
+    private JCheckBox showFinishedCheckbox;
 
     private final DepartmentController departmentController;
     private final EmployeeController employeeController;
@@ -109,6 +110,9 @@ public class App {
         dataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         dataTable.setAutoCreateRowSorter(true);
 
+        currentDataView = poziomUprawnien == PoziomUprawnien.BRYGADZISTA
+                ? DataView.ORDER : DataView.DEPARTMENT;
+
         loadData();
     }
 
@@ -172,7 +176,7 @@ public class App {
                 model = Brygada.getBrigadeTableModel(brigades);
                 break;
             case ORDER:
-                List<Zlecenie> orders = OrderDbManager.getOrders();
+                List<Zlecenie> orders = OrderDbManager.getOrders(true);
                 model = Zlecenie.getTableModel(orders);
                 break;
             case WORK:
@@ -185,6 +189,8 @@ public class App {
     }
 
     private void handleAdditionalActionButton() {
+        showFinishedCheckbox.setVisible(currentDataView == DataView.ORDER);
+
         switch (currentDataView) {
             case DEPARTMENT:
                 additionalActionButton.setVisible(true);
@@ -333,9 +339,7 @@ public class App {
     }
 
     private void initializeButtons() {
-        changePasswordButton.addActionListener(e -> {
-            usersController.changePassword(frame, loggedUser.getUserId());
-        });
+        changePasswordButton.addActionListener(e -> usersController.changePassword(frame, loggedUser.getUserId()));
 
         newButton.addActionListener(e -> addData());
 
@@ -381,5 +385,12 @@ public class App {
         });
 
         logoutButton.addActionListener(e -> logout());
+
+        showFinishedCheckbox.addChangeListener(e -> {
+            List<Zlecenie> orders = OrderDbManager.getOrders(!showFinishedCheckbox.isSelected());
+            DefaultTableModel model = Zlecenie.getTableModel(orders);
+
+            dataTable.setModel(model);
+        });
     }
 }
