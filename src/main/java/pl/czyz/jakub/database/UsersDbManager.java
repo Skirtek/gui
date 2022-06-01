@@ -46,6 +46,30 @@ public class UsersDbManager {
         }
     }
 
+    public static boolean changePassword(Integer userId, String newPassword) {
+        try {
+            if (!DbManager.isConnectionAvailable()) {
+                throw new Exception();
+            }
+
+            String query = "UPDATE uzytkownicy SET haslo = ? WHERE id = ?";
+
+            Connection connection = DbManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, newPassword);
+            ps.setInt(2, userId);
+
+            int rows = ps.executeUpdate();
+
+            ps.close();
+
+            return rows == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
     public static boolean updateUser(Uzytkownik user) {
         try {
             if (!DbManager.isConnectionAvailable()) {
@@ -117,7 +141,7 @@ public class UsersDbManager {
                 throw new Exception();
             }
 
-            String query = "SELECT * FROM uzytkownicy " +
+            String query = "SELECT uzytkownicy.id, pracownicy.imie, pracownicy.nazwisko FROM uzytkownicy " +
                     "JOIN pracownicy ON uzytkownicy.pracownikId = pracownicy.id " +
                     "WHERE login = ? AND haslo = ?";
 
@@ -131,9 +155,10 @@ public class UsersDbManager {
             Uzytkownik uzytkownik = null;
 
             if (rs.next()) {
+                Integer id = rs.getInt("id");
                 String imie = rs.getString("imie");
                 String nazwisko = rs.getString("nazwisko");
-                uzytkownik = new Uzytkownik(imie, nazwisko, LocalDate.now(), null, login, password);
+                uzytkownik = new Uzytkownik(id, new Pracownik(imie, nazwisko, LocalDate.now(), null), login, password);
             }
 
             rs.close();
@@ -141,6 +166,7 @@ public class UsersDbManager {
 
             return uzytkownik;
         } catch (Exception ex) {
+            ex.printStackTrace();
             return null;
         }
     }

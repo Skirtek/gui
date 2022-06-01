@@ -33,6 +33,8 @@ public class App {
     private JButton employeeButton;
     private JTable dataTable;
     private JLabel welcomeLabel;
+    private JScrollPane scrollPanel;
+    private JButton changePasswordButton;
 
     private final DepartmentController departmentController;
     private final EmployeeController employeeController;
@@ -41,6 +43,8 @@ public class App {
     private final BrigadeManController brigadeManController;
     private final BrigadeController brigadeController;
     private final OrderController orderController;
+
+    private Uzytkownik loggedUser;
 
     private DataView currentDataView;
 
@@ -88,7 +92,17 @@ public class App {
             return;
         }
 
+        loggedUser = user;
+
         welcomeLabel.setText(String.format("Witaj %s", user.getInicial()));
+
+        PoziomUprawnien poziomUprawnien = user.getPoziomUprawnien();
+
+        changeUI(poziomUprawnien);
+
+        if (poziomUprawnien == PoziomUprawnien.PRACOWNIK) {
+            return;
+        }
 
         dataTable.setShowGrid(true);
         dataTable.setShowVerticalLines(true);
@@ -96,6 +110,23 @@ public class App {
         dataTable.setAutoCreateRowSorter(true);
 
         loadData();
+    }
+
+    private void changeUI(PoziomUprawnien poziomUprawnien) {
+        changePasswordButton.setVisible(poziomUprawnien == PoziomUprawnien.PRACOWNIK);
+        departmentButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        employeeButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        userButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        brigadeManButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        brigadeButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        orderButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        worksButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        scrollPanel.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        dataTable.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        newButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        editButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        removeButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
+        additionalActionButton.setVisible(poziomUprawnien != PoziomUprawnien.PRACOWNIK);
     }
 
     private void logout() {
@@ -302,6 +333,10 @@ public class App {
     }
 
     private void initializeButtons() {
+        changePasswordButton.addActionListener(e -> {
+            usersController.changePassword(frame, loggedUser.getUserId());
+        });
+
         newButton.addActionListener(e -> addData());
 
         editButton.addActionListener(e -> editData());

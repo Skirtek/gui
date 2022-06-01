@@ -63,6 +63,34 @@ public class BrigadeManDbManager {
         }
     }
 
+    public static boolean isBrigadeMan(Integer userId) {
+        try {
+            if (!DbManager.isConnectionAvailable()) {
+                throw new Exception();
+            }
+
+            String query = "SELECT *" +
+                    "FROM brygadzisci " +
+                    "JOIN uzytkownicy ON uzytkownicy.id = brygadzisci.uzytkownikId " +
+                    "WHERE uzytkownicy.id = ?";
+
+            Connection connection = DbManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            boolean result = rs.next();
+
+            rs.close();
+            ps.close();
+
+            return result;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public static List<Brygadzista> getBrigadeMan() {
         List<Brygadzista> result = new ArrayList<>();
 

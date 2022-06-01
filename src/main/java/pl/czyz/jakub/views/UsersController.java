@@ -25,6 +25,50 @@ public class UsersController {
         return UsersDbManager.createUser(user);
     }
 
+    public boolean changePassword(JFrame frame, Integer userId) {
+        JTextField password = new JPasswordField();
+        JTextField repeatedPassword = new JPasswordField();
+
+        AtomicReference<Boolean> result = new AtomicReference<>(false);
+
+        Object[] fields = {"Nowe hasło:", password, "Powtórz nowe hasło:", repeatedPassword};
+
+        JButton change = new JButton("Zmień");
+        JButton cancel = new JButton("Anuluj");
+
+        cancel.addActionListener(e -> {
+            result.set(false);
+            closeForm(cancel);
+        });
+
+        change.addActionListener(e -> {
+            if (password.getText().trim().isEmpty()) {
+                showValidationError(frame, "Hasło nie może być puste");
+                return;
+            }
+
+            if (!password.getText().equals(repeatedPassword.getText())) {
+                showValidationError(frame, "Hasła się nie zgadzają");
+                return;
+            }
+
+            result.set(UsersDbManager.changePassword(userId, password.getText()));
+            closeForm(change);
+        });
+
+        JOptionPane.showOptionDialog(
+                null,
+                fields,
+                "Ustaw nowe hasło",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                new JButton[]{change, cancel},
+                null);
+
+        return result.get();
+    }
+
     public boolean editUser(JFrame frame, JTable table) {
         int index = table.getSelectedRow();
 

@@ -1,5 +1,7 @@
 package pl.czyz.jakub.models;
 
+import pl.czyz.jakub.database.BrigadeManDbManager;
+
 import javax.swing.table.DefaultTableModel;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +26,7 @@ public class Uzytkownik extends Pracownik {
         this.id = id;
         this.login = login;
         this.haslo = haslo;
+        setInicial();
     }
 
     public Uzytkownik(Pracownik employee, String login, String haslo) {
@@ -107,5 +110,15 @@ public class Uzytkownik extends Pracownik {
         }
 
         return rows;
+    }
+
+    public PoziomUprawnien getPoziomUprawnien() {
+        if (getLogin().equals("admin")) {
+            return PoziomUprawnien.ADMINISTRATOR;
+        } else if (BrigadeManDbManager.isBrigadeMan(getUserId())) {
+            return PoziomUprawnien.BRYGADZISTA;
+        } else {
+            return PoziomUprawnien.PRACOWNIK;
+        }
     }
 }

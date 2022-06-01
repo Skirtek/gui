@@ -1,6 +1,8 @@
 package pl.czyz.jakub.views;
 
+import pl.czyz.jakub.database.BrigadeManDbManager;
 import pl.czyz.jakub.database.UsersDbManager;
+import pl.czyz.jakub.models.PoziomUprawnien;
 import pl.czyz.jakub.models.Uzytkownik;
 
 import javax.swing.*;
@@ -31,6 +33,7 @@ public class AuthView {
 
         if (user == null) {
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            return null;
         }
 
         return user;
