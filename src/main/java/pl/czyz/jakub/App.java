@@ -63,7 +63,7 @@ public class App {
         initializeButtons();
     }
 
-    public static void main(String[] args) {
+    public static void run() {
         App instance = new App();
         frame = new JFrame("GUI");
         frame.setContentPane(instance.panelMain);
