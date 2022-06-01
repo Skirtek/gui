@@ -161,7 +161,9 @@ public class UsersController {
 
             Pracownik employee = employees.get(employeesDropdown.getSelectedIndex());
 
-            result.set(new Uzytkownik(employee, loginText, passwordText));
+            result.set(initValue != null ?
+                    new Uzytkownik(initValue.getUserId(), employee, loginText, passwordText) :
+                    new Uzytkownik(employee, loginText, passwordText));
 
             closeForm(add);
         });
